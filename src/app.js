@@ -198,7 +198,7 @@ function renderDesign() {
       ['serif', 'Serif'],
       ['sans', 'Sans serif'],
     ],
-  )}<label class="settings-row">Accent color<input type="color" data-setting="accent" aria-label="Accent color" value="${doc.settings.accent}"></label>${slider('fontSize', 'Body size', 10, 20, 0.5, ' px')}${slider('titleSize', 'Section title size', 15, 28, 0.5, ' px')}${slider('nameSize', 'Name size', 24, 46, 1, ' px')}</div><div class="setting-group"><h2>Spacing & margins</h2>${slider('lineHeight', 'Line height', 1.15, 2.2, 0.05, '×')}${slider('paragraphGap', 'Paragraph spacing', 0, 16, 1, ' px')}${slider('listGap', 'List spacing', 0, 12, 1, ' px')}${slider('sectionGap', 'Section spacing', 4, 32, 1, ' px')}${slider('margin', 'Page margins', 8, 24, 0.5, ' mm')}</div><div class="setting-group"><h2>Photo</h2>${select(
+  )}<label class="settings-row">Accent color<input type="color" data-setting="accent" aria-label="Accent color" value="${doc.settings.accent}"></label>${slider('fontSize', 'Body size', 10, 20, 0.5, ' px')}${slider('titleSize', 'Section title size', 15, 28, 0.5, ' px')}${slider('nameSize', 'Name size', 24, 46, 1, ' px')}</div><div class="setting-group"><h2>Spacing & margins</h2>${slider('lineHeight', 'Line height', 1.15, 2.2, 0.05, '×')}${slider('paragraphGap', 'Paragraph spacing', 0, 16, 1, ' px')}${slider('listGap', 'List spacing', 0, 12, 1, ' px')}${slider('headerGap', 'Header spacing', 0, 60, 1, ' px')}${slider('sectionGap', 'Section spacing', 4, 32, 1, ' px')}${slider('margin', 'Page margins', 8, 24, 0.5, ' mm')}</div><div class="setting-group"><h2>Photo</h2>${select(
     'photoSide',
     'Photo',
     [
@@ -474,7 +474,7 @@ function designCss() {
     s.font === 'sans'
       ? '"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif'
       : '"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif';
-  return `@page{size:A4;margin:${s.margin}mm}.cv{font-family:${font};font-size:${s.fontSize}px;line-height:${s.lineHeight}}.cv-name{font-size:${s.nameSize}px;color:${s.accent}}.section-title{font-size:${s.titleSize}px!important;color:${s.accent};border-color:${s.accent}}.cv-section{margin-bottom:${s.sectionGap}px}.cv p{margin-bottom:${s.paragraphGap}px}.cv p:last-child{margin-bottom:0}.cv-text{margin-bottom:${s.paragraphGap}px}.cv li{margin-top:${s.listGap}px;margin-bottom:${s.listGap}px}.cv-header{grid-template-columns:minmax(0,1fr) ${s.photoWidth}mm}.cv-header.photo-left{grid-template-columns:${s.photoWidth}mm minmax(0,1fr)}.cv-photo{width:${s.photoWidth}mm}`;
+  return `@page{size:A4;margin:${s.margin}mm}.cv{font-family:${font};font-size:${s.fontSize}px;line-height:${s.lineHeight}}.cv-name{font-size:${s.nameSize}px;color:${s.accent}}.section-title{font-size:${s.titleSize}px!important;color:${s.accent};border-color:${s.accent}}.cv-section{margin-bottom:${s.sectionGap}px}.cv p{margin-bottom:${s.paragraphGap}px}.cv p:last-child{margin-bottom:0}.cv-text{margin-bottom:${s.paragraphGap}px}.cv li{margin-top:${s.listGap}px;margin-bottom:${s.listGap}px}.cv-header{grid-template-columns:minmax(0,1fr) ${s.photoWidth}mm;margin-bottom:${s.headerGap}px}.cv-header.photo-left{grid-template-columns:${s.photoWidth}mm minmax(0,1fr)}.cv-photo{width:${s.photoWidth}mm}`;
 }
 function schedulePreview(delay = 450) {
   clearTimeout(previewTimer);

@@ -8,11 +8,22 @@ test('backup roundtrip preserves deleted fields, Unicode, photo, markdown and st
   d.sections[1].blocks[0].right = null;
   d.header.photo = 'data:image/jpeg;base64,YWJj';
   d.settings.lineHeight = 1.8;
+  d.settings.headerGap = 0;
   d.sections[1].blocks[1].text = '**中文**\n\n- 项目一\n- 项目二';
   assert.deepEqual(normalizeDocument(JSON.parse(JSON.stringify(d))), {
     ...d,
     header: { ...d.header, photoHidden: false },
   });
+});
+test('existing version 1 drafts retain their layout when header spacing is absent', () => {
+  const legacy = initialDocument();
+  delete legacy.settings.headerGap;
+  legacy.settings.sectionGap = 9;
+  const restored = normalizeDocument(JSON.parse(JSON.stringify(legacy)));
+  assert.equal(restored.settings.headerGap, 23);
+  assert.equal(restored.settings.sectionGap, 9);
+  assert.deepEqual(restored.header.fields, legacy.header.fields);
+  assert.deepEqual(restored.sections, legacy.sections);
 });
 test('import rejects wrong schema/version and clamps layout values', () => {
   assert.throws(() => normalizeDocument({ version: 1 }));
