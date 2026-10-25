@@ -14,6 +14,8 @@ export const defaults = {
   listGap: 3,
   accent: '#353387',
   photoWidth: 29,
+  photoSizing: 'auto',
+  photoMinHeight: 28,
   photoSide: 'right',
   photoShape: 'square',
 };
@@ -145,6 +147,7 @@ export function normalizeDocument(input) {
     paragraphGap: [0, 16],
     listGap: [0, 12],
     photoWidth: [20, 40],
+    photoMinHeight: [20, 40],
   };
   for (const [key, [lo, hi]] of Object.entries(bounds))
     settings[key] = clamp(raw[key] ?? defaults[key], lo, hi, defaults[key]);
@@ -152,6 +155,7 @@ export function normalizeDocument(input) {
   if (/^#[0-9a-f]{6}$/i.test(raw.accent)) settings.accent = raw.accent;
   if (['left', 'right'].includes(raw.photoSide)) settings.photoSide = raw.photoSide;
   if (['square', 'round'].includes(raw.photoShape)) settings.photoShape = raw.photoShape;
+  if (['auto', 'fixed'].includes(raw.photoSizing)) settings.photoSizing = raw.photoSizing;
   const photo =
     typeof input.header.photo === 'string' &&
     input.header.photo.length < 3000000 &&

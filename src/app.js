@@ -2,6 +2,7 @@ import DOMPurify from 'dompurify';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { renderMarkdown } from './markdown.js';
+import { fitHeaderPhoto } from './photo-layout.js';
 import {
   STORAGE_KEY,
   clone,
@@ -208,7 +209,10 @@ function renderDesign() {
   )}${select('photoShape', 'Photo shape', [
     ['square', '3 : 4 rectangle'],
     ['round', 'Circle'],
-  ])}${slider('photoWidth', 'Photo width', 20, 40, 1, ' mm')}<p class="muted">Photos are cropped from the center. Replace or remove the photo in Content.</p></div><button id="reset-design">Reset layout</button>`;
+  ])}${select('photoSizing', 'Photo sizing', [
+    ['auto', 'Match header height'],
+    ['fixed', 'Fixed width'],
+  ])}${doc.settings.photoSizing === 'auto' ? slider('photoMinHeight', 'Minimum photo height', 20, 40, 1, ' mm') : slider('photoWidth', 'Photo width', 20, 40, 1, ' mm')}<p class="muted">Auto sizing follows the visible header content, with a minimum height. Photos keep their shape and are cropped from the center.</p></div><button id="reset-design">Reset layout</button>`;
 }
 function renderAll() {
   renderEditor();
@@ -331,6 +335,7 @@ document.addEventListener('input', (event) => {
     doc.settings[el.dataset.setting] = el.type === 'range' ? Number(el.value) : el.value;
     if ($('out-' + el.dataset.setting))
       $('out-' + el.dataset.setting).textContent = el.value + (el.dataset.unit || '');
+    if (el.dataset.setting === 'photoSizing') renderDesign();
     changed();
   }
 });
@@ -465,7 +470,15 @@ document.addEventListener('keydown', (event) => {
 
 function resumeMarkup() {
   const s = doc.settings,
-    header = `<header class="cv-header ${doc.header.photoHidden ? 'without-photo' : ''} ${s.photoSide === 'left' ? 'photo-left' : ''}"><div class="header-fields">${doc.header.fields.map((f) => `<div class="${f.kind === 'name' ? 'cv-name' : f.kind === 'contact' ? 'cv-contact' : 'cv-headline'}">${md(f.text)}</div>`).join('')}</div>${doc.header.photoHidden ? '' : doc.header.photo ? `<img class="cv-photo ${s.photoShape === 'round' ? 'round' : ''}" src="${doc.header.photo}" alt="Profile photo">` : `<div class="cv-photo photo-placeholder ${s.photoShape === 'round' ? 'round' : ''}"><span>Photo</span><small>3 : 4</small></div>`}</header>`;
+    header = `<header class="cv-header ${doc.header.photoHidden ? 'without-photo' : ''} ${s.photoSide === 'left' ? 'photo-left' : ''}"><div class="header-fields">${doc.header.fields
+      .filter((f) => f.text.trim())
+      .map(
+        (f) =>
+          `<div class="${f.kind === 'name' ? 'cv-name' : f.kind === 'contact' ? 'cv-contact' : 'cv-headline'}">${md(f.text)}</div>`,
+      )
+      .join(
+        '',
+      )}</div>${doc.header.photoHidden ? '' : doc.header.photo ? `<img class="cv-photo ${s.photoShape === 'round' ? 'round' : ''}" src="${doc.header.photo}" alt="Profile photo">` : `<div class="cv-photo photo-placeholder ${s.photoShape === 'round' ? 'round' : ''}"><span>Photo</span><small>3 : 4</small></div>`}</header>`;
   return `<main class="cv">${header}${doc.sections.map((section) => `<section class="cv-section">${section.title !== null ? `<div class="section-title">${md(section.title)}</div>` : ''}${section.blocks.map((b) => (b.type === 'row' ? `<div class="cv-row">${b.left !== null ? `<div class="row-left">${md(b.left)}</div>` : ''}${b.right !== null ? `<div class="row-right">${md(b.right)}</div>` : ''}</div>` : b.type === 'break' ? '<div class="page-break"></div>' : `<div class="cv-text">${md(b.text)}</div>`)).join('')}</section>`).join('')}</main>`;
 }
 function designCss() {
@@ -474,7 +487,7 @@ function designCss() {
     s.font === 'sans'
       ? '"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif'
       : '"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif';
-  return `@page{size:A4;margin:${s.margin}mm}.cv{font-family:${font};font-size:${s.fontSize}px;line-height:${s.lineHeight}}.cv-name{font-size:${s.nameSize}px;color:${s.accent}}.section-title{font-size:${s.titleSize}px!important;color:${s.accent};border-color:${s.accent}}.cv-section{margin-bottom:${s.sectionGap}px}.cv p{margin-bottom:${s.paragraphGap}px}.cv p:last-child{margin-bottom:0}.cv-text{margin-bottom:${s.paragraphGap}px}.cv li{margin-top:${s.listGap}px;margin-bottom:${s.listGap}px}.cv-header{grid-template-columns:minmax(0,1fr) ${s.photoWidth}mm;margin-bottom:${s.headerGap}px}.cv-header.photo-left{grid-template-columns:${s.photoWidth}mm minmax(0,1fr)}.cv-photo{width:${s.photoWidth}mm}`;
+  return `@page{size:A4;margin:${s.margin}mm}.cv{font-family:${font};font-size:${s.fontSize}px;line-height:${s.lineHeight}}.cv-name{font-size:${s.nameSize}px;color:${s.accent}}.section-title{font-size:${s.titleSize}px!important;color:${s.accent};border-color:${s.accent}}.cv-section{margin-bottom:${s.sectionGap}px}.cv p{margin-bottom:${s.paragraphGap}px}.cv p:last-child{margin-bottom:0}.cv-text{margin-bottom:${s.paragraphGap}px}.cv li{margin-top:${s.listGap}px;margin-bottom:${s.listGap}px}.cv-header{--photo-width:${s.photoWidth}mm;grid-template-columns:minmax(0,1fr) var(--photo-width);margin-bottom:${s.headerGap}px}.cv-header.photo-left{grid-template-columns:var(--photo-width) minmax(0,1fr)}.cv-photo{width:var(--photo-width);height:var(--photo-height,auto)}`;
 }
 function schedulePreview(delay = 450) {
   clearTimeout(previewTimer);
@@ -487,9 +500,9 @@ function renderPreview() {
     html = resumeMarkup(),
     css = designCss();
   $('page-count').textContent = 'Preparing…';
-  const script = `(async()=>{try{await document.fonts.ready;const previewer=new Paged.Previewer();const flow=await previewer.preview(document.getElementById('source').innerHTML,[${JSON.stringify(base + 'resume.css')},{'resume-dynamic.css':${JSON.stringify(css)}}],document.getElementById('pages'));await document.fonts.ready;parent.postMessage({type:'resume-preview-ready',revision:${rev},pages:flow.total,height:document.getElementById('pages').scrollHeight},${JSON.stringify(location.origin)});}catch(error){parent.postMessage({type:'resume-preview-error',revision:${rev},message:String(error)},${JSON.stringify(location.origin)});}})();`;
+  const script = `(async()=>{try{await (${fitHeaderPhoto.toString()})(document.getElementById('source'),${JSON.stringify(doc.settings)});await document.fonts.ready;const previewer=new Paged.Previewer();const flow=await previewer.preview(document.getElementById('source').innerHTML,[${JSON.stringify(base + 'resume.css')},{'resume-dynamic.css':${JSON.stringify(css)}}],document.getElementById('pages'));await document.fonts.ready;parent.postMessage({type:'resume-preview-ready',revision:${rev},pages:flow.total,height:document.getElementById('pages').scrollHeight},${JSON.stringify(location.origin)});}catch(error){parent.postMessage({type:'resume-preview-error',revision:${rev},message:String(error)},${JSON.stringify(location.origin)});}})();`;
   $('preview').srcdoc =
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><base href="${esc(base)}"><title>${esc(filename())}</title><link rel="stylesheet" href="vendor/katex.min.css"><style>html,body{margin:0;background:transparent}body{width:794px}.pagedjs_page{background:white;margin:0 0 18px;box-shadow:0 3px 14px #20372814}.pagedjs_page:last-child{margin-bottom:0}@media print{html,body{width:auto;background:white}.pagedjs_page{margin:0!important;box-shadow:none!important;break-after:page}.pagedjs_page:last-child{break-after:auto}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style><script>window.PagedConfig={auto:false};<\/script><script src="vendor/paged.polyfill.js"><\/script></head><body><template id="source">${html}</template><div id="pages"></div><script>${script}<\/script></body></html>`;
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><base href="${esc(base)}"><title>${esc(filename())}</title><link rel="stylesheet" href="vendor/katex.min.css"><link rel="stylesheet" href="resume.css"><style>${css}</style><style>html,body{margin:0;background:transparent}body{width:794px}.pagedjs_page{background:white;margin:0 0 18px;box-shadow:0 3px 14px #20372814}.pagedjs_page:last-child{margin-bottom:0}@media print{html,body{width:auto;background:white}.pagedjs_page{margin:0!important;box-shadow:none!important;break-after:page}.pagedjs_page:last-child{break-after:auto}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style><script>window.PagedConfig={auto:false};<\/script><script src="vendor/paged.polyfill.js"><\/script></head><body><template id="source">${html}</template><div id="pages"></div><script>${script}<\/script></body></html>`;
 }
 window.addEventListener('message', (event) => {
   if (event.source !== $('preview').contentWindow) return;

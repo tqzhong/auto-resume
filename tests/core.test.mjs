@@ -9,6 +9,8 @@ test('backup roundtrip preserves deleted fields, Unicode, photo, markdown and st
   d.header.photo = 'data:image/jpeg;base64,YWJj';
   d.settings.lineHeight = 1.8;
   d.settings.headerGap = 0;
+  d.settings.photoSizing = 'fixed';
+  d.settings.photoMinHeight = 32;
   d.sections[1].blocks[1].text = '**中文**\n\n- 项目一\n- 项目二';
   assert.deepEqual(normalizeDocument(JSON.parse(JSON.stringify(d))), {
     ...d,
@@ -32,12 +34,28 @@ test('import rejects wrong schema/version and clamps layout values', () => {
   assert.throws(() => normalizeDocument(d));
   d.version = 1;
   d.settings.fontSize = 500;
+  d.settings.photoMinHeight = 0;
+  d.settings.photoSizing = 'unknown';
   d.settings.accent = 'url(https://bad.test)';
   d.header.photo = 'https://example.com/secret.jpg';
   const n = normalizeDocument(d);
   assert.equal(n.settings.fontSize, 20);
+  assert.equal(n.settings.photoMinHeight, 20);
+  assert.equal(n.settings.photoSizing, 'auto');
   assert.equal(n.settings.accent, '#353387');
   assert.equal(n.header.photo, null);
+});
+test('older backups gain adaptive photo sizing without changing content or fixed width', () => {
+  const legacy = initialDocument();
+  delete legacy.settings.photoSizing;
+  delete legacy.settings.photoMinHeight;
+  legacy.settings.photoWidth = 35;
+  const restored = normalizeDocument(legacy);
+  assert.equal(restored.settings.photoSizing, 'auto');
+  assert.equal(restored.settings.photoMinHeight, 28);
+  assert.equal(restored.settings.photoWidth, 35);
+  assert.deepEqual(restored.header.fields, legacy.header.fields);
+  assert.deepEqual(restored.sections, legacy.sections);
 });
 test('ordering keeps boundary items and correctly moves modules', () => {
   const d = initialDocument(),

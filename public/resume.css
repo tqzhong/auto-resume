@@ -140,6 +140,13 @@ body {
 }
 .header-fields {
   min-width: 0;
+  display: flow-root;
+}
+.header-fields > :first-child {
+  margin-top: 0;
+}
+.header-fields > :last-child {
+  margin-bottom: 0;
 }
 .cv-name {
   font-size: 34px;
