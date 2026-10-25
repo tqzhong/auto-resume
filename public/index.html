@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="模块自由组合，Markdown 整块编辑，自动保存与 PDF 导出。" />
+    <title>简历工坊 · 自由编辑</title>
+    <link rel="stylesheet" href="app.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="简历工坊首页"
+        ><span class="brand-mark">简</span><span>简历工坊<small>把经历写清楚</small></span></a
+      >
+      <div class="document-name">
+        <label class="sr-only" for="doc-name">简历文件名</label
+        ><input id="doc-name" maxlength="100" value="我的社招简历" /><span
+          id="save-status"
+          role="status"
+          >草稿保存在当前浏览器</span
+        >
+      </div>
+      <div class="top-actions">
+        <button id="undo" title="撤销 Ctrl / ⌘ Z" disabled>撤销</button
+        ><button id="redo" title="重做" disabled>重做</button><span class="divider"></span
+        ><button id="save">保存</button><button id="backup">备份 ↓</button
+        ><label class="button" for="import-file"
+          >导入<input
+            id="import-file"
+            type="file"
+            accept="application/json,.json"
+            class="sr-only" /></label
+        ><button id="export" class="primary" disabled>导出 PDF ↗</button>
+      </div>
+    </header>
+    <main class="workbench">
+      <aside class="editor-panel">
+        <div class="panel-tabs">
+          <div role="tablist" aria-label="编辑选项">
+            <button role="tab" id="content-tab" aria-selected="true" aria-controls="content-panel">
+              内容</button
+            ><button role="tab" id="design-tab" aria-selected="false" aria-controls="design-panel">
+              排版
+            </button>
+          </div>
+          <button id="help" class="text-button">Markdown 语法 ↗</button>
+        </div>
+        <div class="panel-scroll" id="content-panel" role="tabpanel" aria-labelledby="content-tab">
+          <div class="panel-intro">
+            <h1>你的经历，你来排。</h1>
+            <p>每个区域都可以增删，正文是一整块 Markdown。</p>
+          </div>
+          <div id="editor-content"></div>
+          <button id="add-section" class="add-section">＋ 添加模块</button>
+          <p class="storage-note">
+            自动保存到当前浏览器。用「备份」带走内容，在其他浏览器「导入」继续编辑。
+          </p>
+        </div>
+        <div
+          class="panel-scroll"
+          id="design-panel"
+          role="tabpanel"
+          aria-labelledby="design-tab"
+          hidden
+        >
+          <div class="panel-intro">
+            <h1>调整整份简历</h1>
+            <p>字号、行距和留白会同步应用到所有模块。</p>
+          </div>
+          <div id="design-content"></div>
+        </div>
+        <div class="editor-bottom">
+          <span>清爽单栏 · A4</span><span>正文支持 Markdown / LaTeX 公式</span>
+        </div>
+      </aside>
+      <div
+        class="resize-handle"
+        role="separator"
+        aria-label="拖动调整编辑区宽度"
+        title="拖动调整编辑区宽度"
+      ></div>
+      <section class="preview-panel" aria-label="简历实时预览">
+        <div class="preview-top">
+          <span><i class="live-dot"></i> 实时预览 <small id="page-count">排版中</small></span>
+          <div>
+            <label for="zoom">缩放</label
+            ><select id="zoom">
+              <option value="fit">适应宽度</option>
+              <option value="1">100%</option>
+              <option value=".85">85%</option>
+              <option value=".7">70%</option>
+            </select>
+          </div>
+        </div>
+        <div id="preview-scroll">
+          <div id="preview-sized"><iframe id="preview" title="A4 简历分页预览"></iframe></div>
+        </div>
+        <div class="preview-bottom">
+          PDF 使用相同分页与排版 · 导出时选择「另存为 PDF」并关闭浏览器页眉页脚
+        </div>
+      </section>
+    </main>
+    <dialog id="help-dialog">
+      <div class="dialog-head">
+        <h2>常用 Markdown，直接写。</h2>
+        <button data-close="help-dialog" aria-label="关闭语法帮助">✕</button>
+      </div>
+      <p>姓名、模块标题、左右信息和正文均支持 Markdown。整块正文可包含多个段落。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>输入</th>
+            <th>效果</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>**重点** / *斜体*</code></td>
+            <td>加粗 / 斜体</td>
+          </tr>
+          <tr>
+            <td><code>==高亮== / ++下划线++</code></td>
+            <td>高亮 / 下划线</td>
+          </tr>
+          <tr>
+            <td><code>[项目](https://example.com)</code></td>
+            <td>可点击链接</td>
+          </tr>
+          <tr>
+            <td>
+              <code>- 无序列表<br />1. 有序列表</code>
+            </td>
+            <td>支持缩进与嵌套</td>
+          </tr>
+          <tr>
+            <td><code>$F_1=\frac{2PR}{P+R}$</code></td>
+            <td>行内公式；单独用 $$ 包围为独立公式</td>
+          </tr>
+          <tr>
+            <td><code>## 小标题 / &gt; 引用</code></td>
+            <td>标题 / 引用</td>
+          </tr>
+          <tr>
+            <td><code>~~删除线~~ / `代码`</code></td>
+            <td>删除线 / 行内代码</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        也支持表格、代码块、任务列表、脚注。下划线使用 <code>++文字++</code>；HTML
+        标签按文本显示。照片使用页眉中的照片入口。
+      </p>
+      <button data-close="help-dialog" class="primary">开始编辑</button>
+    </dialog>
+    <dialog id="pdf-dialog">
+      <div class="dialog-head">
+        <h2>导出为 PDF</h2>
+        <button data-close="pdf-dialog" aria-label="关闭导出说明">✕</button>
+      </div>
+      <p>
+        <strong>文字版适合正式投递。</strong>在打印窗口中选择「另存为
+        PDF」，保留可选中文字与超链接。
+      </p>
+      <ol>
+        <li>纸张：A4；缩放：100%</li>
+        <li>关闭「页眉和页脚」</li>
+        <li>开启「背景图形」，保留高亮色</li>
+      </ol>
+      <p class="muted">
+        也可直接下载图片版 PDF，固定版式、方便分享，但文字不可选择。若内嵌浏览器没有打印窗口，请在
+        Chrome、Edge 或 Safari 打开，导入备份后导出文字版。
+      </p>
+      <div class="dialog-actions">
+        <button id="download-pdf">直接下载图片版</button
+        ><button id="print-now" class="primary">导出文字版 · 推荐</button>
+      </div>
+    </dialog>
+    <div id="toast" role="status" hidden></div>
+  </body>
+</html>
