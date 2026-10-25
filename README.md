@@ -31,7 +31,7 @@ npm run build
 npm start
 ```
 
-打开 **http://127.0.0.1:8765**。按需使用 `RESUME_PORT=9000 npm start` 更换端口。
+打开 [本地编辑器](http://127.0.0.1:8765)。按需使用 `RESUME_PORT=9000 npm start` 更换端口。
 
 `npm start` 提供已构建的文件；修改源码后需重新执行 `npm run build` 并刷新页面。
 
