@@ -4,7 +4,7 @@
 
 A minimal résumé editor with Markdown, flexible sections, and live A4 previews. Shape the content, refine the typography, and make every page your own.
 
-![Auto Resume — Markdown editing and live page preview](docs/editor-preview.png)
+![Auto Resume — Markdown editing and live page preview](docs/editor-preview-en.png)
 
 ## Made for the details
 

@@ -29,5 +29,5 @@ markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   return baseLink(tokens, idx, options, env, self);
 };
 markdown.renderer.rules.image = (tokens, idx) =>
-  `<span class="image-note">[图片：${markdown.utils.escapeHtml(tokens[idx].content)}]</span>`;
+  `<span class="image-note">[Image: ${markdown.utils.escapeHtml(tokens[idx].content)}]</span>`;
 export const renderMarkdown = (source) => markdown.render(String(source ?? ''));

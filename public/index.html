@@ -1,60 +1,64 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="description" content="模块自由组合，Markdown 整块编辑，自动保存与 PDF 导出。" />
-    <title>简历工坊 · 自由编辑</title>
+    <meta
+      name="description"
+      content="Flexible sections, Markdown editing, local drafts, and PDF export."
+    />
+    <title>Auto Resume · Editor</title>
     <link rel="stylesheet" href="app.css" />
     <script defer src="app.js"></script>
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="./" aria-label="简历工坊首页"
-        ><span class="brand-mark">简</span><span>简历工坊<small>把经历写清楚</small></span></a
+      <a class="brand" href="./" aria-label="Auto Resume home"
+        ><span class="brand-mark">A</span
+        ><span>Auto Resume<small>Your story, well told</small></span></a
       >
       <div class="document-name">
-        <label class="sr-only" for="doc-name">简历文件名</label
-        ><input id="doc-name" maxlength="100" value="我的社招简历" /><span
+        <label class="sr-only" for="doc-name">Resume file name</label
+        ><input id="doc-name" maxlength="100" value="My resume" /><span
           id="save-status"
           role="status"
-          >草稿保存在当前浏览器</span
+          >Drafts stay in this browser</span
         >
       </div>
       <div class="top-actions">
-        <button id="undo" title="撤销 Ctrl / ⌘ Z" disabled>撤销</button
-        ><button id="redo" title="重做" disabled>重做</button><span class="divider"></span
-        ><button id="save">保存</button><button id="backup">备份 ↓</button
+        <button id="undo" title="Undo Ctrl / ⌘ Z" disabled>Undo</button
+        ><button id="redo" title="Redo" disabled>Redo</button><span class="divider"></span
+        ><button id="save">Save</button><button id="backup">Backup ↓</button
         ><label class="button" for="import-file"
-          >导入<input
+          >Import<input
             id="import-file"
             type="file"
             accept="application/json,.json"
             class="sr-only" /></label
-        ><button id="export" class="primary" disabled>导出 PDF ↗</button>
+        ><button id="export" class="primary" disabled>Export PDF ↗</button>
       </div>
     </header>
     <main class="workbench">
       <aside class="editor-panel">
         <div class="panel-tabs">
-          <div role="tablist" aria-label="编辑选项">
+          <div role="tablist" aria-label="Editor options">
             <button role="tab" id="content-tab" aria-selected="true" aria-controls="content-panel">
-              内容</button
+              Content</button
             ><button role="tab" id="design-tab" aria-selected="false" aria-controls="design-panel">
-              排版
+              Design
             </button>
           </div>
-          <button id="help" class="text-button">Markdown 语法 ↗</button>
+          <button id="help" class="text-button">Markdown guide ↗</button>
         </div>
         <div class="panel-scroll" id="content-panel" role="tabpanel" aria-labelledby="content-tab">
           <div class="panel-intro">
-            <h1>你的经历，你来排。</h1>
-            <p>每个区域都可以增删，正文是一整块 Markdown。</p>
+            <h1>Your story. Your way.</h1>
+            <p>Flexible sections. One Markdown canvas.</p>
           </div>
           <div id="editor-content"></div>
-          <button id="add-section" class="add-section">＋ 添加模块</button>
+          <button id="add-section" class="add-section">＋ Add section</button>
           <p class="storage-note">
-            自动保存到当前浏览器。用「备份」带走内容，在其他浏览器「导入」继续编辑。
+            Saved in this browser. Download a backup to continue elsewhere.
           </p>
         </div>
         <div
@@ -65,28 +69,30 @@
           hidden
         >
           <div class="panel-intro">
-            <h1>调整整份简历</h1>
-            <p>字号、行距和留白会同步应用到所有模块。</p>
+            <h1>Refine the details</h1>
+            <p>Typography and spacing apply across your resume.</p>
           </div>
           <div id="design-content"></div>
         </div>
         <div class="editor-bottom">
-          <span>清爽单栏 · A4</span><span>正文支持 Markdown / LaTeX 公式</span>
+          <span>Single column · A4</span><span>Markdown & LaTeX</span>
         </div>
       </aside>
       <div
         class="resize-handle"
         role="separator"
-        aria-label="拖动调整编辑区宽度"
-        title="拖动调整编辑区宽度"
+        aria-label="Drag to resize the editor"
+        title="Drag to resize the editor"
       ></div>
-      <section class="preview-panel" aria-label="简历实时预览">
+      <section class="preview-panel" aria-label="Live resume preview">
         <div class="preview-top">
-          <span><i class="live-dot"></i> 实时预览 <small id="page-count">排版中</small></span>
+          <span
+            ><i class="live-dot"></i> Live preview <small id="page-count">Preparing</small></span
+          >
           <div>
-            <label for="zoom">缩放</label
+            <label for="zoom">Zoom</label
             ><select id="zoom">
-              <option value="fit">适应宽度</option>
+              <option value="fit">Fit to width</option>
               <option value="1">100%</option>
               <option value=".85">85%</option>
               <option value=".7">70%</option>
@@ -94,86 +100,88 @@
           </div>
         </div>
         <div id="preview-scroll">
-          <div id="preview-sized"><iframe id="preview" title="A4 简历分页预览"></iframe></div>
+          <div id="preview-sized"><iframe id="preview" title="A4 page preview"></iframe></div>
         </div>
         <div class="preview-bottom">
-          PDF 使用相同分页与排版 · 导出时选择「另存为 PDF」并关闭浏览器页眉页脚
+          Your PDF follows this layout · Print without browser headers and footers
         </div>
       </section>
     </main>
     <dialog id="help-dialog">
       <div class="dialog-head">
-        <h2>常用 Markdown，直接写。</h2>
-        <button data-close="help-dialog" aria-label="关闭语法帮助">✕</button>
+        <h2>Write with Markdown</h2>
+        <button data-close="help-dialog" aria-label="Close Markdown guide">✕</button>
       </div>
-      <p>姓名、模块标题、左右信息和正文均支持 Markdown。整块正文可包含多个段落。</p>
+      <p>Every text field supports Markdown. Write multiple paragraphs in one body block.</p>
       <table>
         <thead>
           <tr>
-            <th>输入</th>
-            <th>效果</th>
+            <th>Input</th>
+            <th>Result</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>**重点** / *斜体*</code></td>
-            <td>加粗 / 斜体</td>
+            <td><code>**Bold** / *Italic*</code></td>
+            <td>Bold / italic</td>
           </tr>
           <tr>
-            <td><code>==高亮== / ++下划线++</code></td>
-            <td>高亮 / 下划线</td>
+            <td><code>==Highlight== / ++Underline++</code></td>
+            <td>Highlight / underline</td>
           </tr>
           <tr>
-            <td><code>[项目](https://example.com)</code></td>
-            <td>可点击链接</td>
+            <td><code>[Project](https://example.com)</code></td>
+            <td>Clickable link</td>
           </tr>
           <tr>
             <td>
-              <code>- 无序列表<br />1. 有序列表</code>
+              <code>- Bullet list<br />1. Numbered list</code>
             </td>
-            <td>支持缩进与嵌套</td>
+            <td>Indentation and nesting supported</td>
           </tr>
           <tr>
             <td><code>$F_1=\frac{2PR}{P+R}$</code></td>
-            <td>行内公式；单独用 $$ 包围为独立公式</td>
+            <td>Inline math; use $$ for a display equation</td>
           </tr>
           <tr>
-            <td><code>## 小标题 / &gt; 引用</code></td>
-            <td>标题 / 引用</td>
+            <td><code>## Heading / &gt; Quote</code></td>
+            <td>Heading / quote</td>
           </tr>
           <tr>
-            <td><code>~~删除线~~ / `代码`</code></td>
-            <td>删除线 / 行内代码</td>
+            <td><code>~~Strikethrough~~ / `Code`</code></td>
+            <td>Strikethrough / inline code</td>
           </tr>
         </tbody>
       </table>
       <p>
-        也支持表格、代码块、任务列表、脚注。下划线使用 <code>++文字++</code>；HTML
-        标签按文本显示。照片使用页眉中的照片入口。
+        Tables, code blocks, task lists, and footnotes are supported. Underline with
+        <code>++text++</code>. HTML tags are displayed as text. Add photos through the profile
+        section.
       </p>
-      <button data-close="help-dialog" class="primary">开始编辑</button>
+      <button data-close="help-dialog" class="primary">Start writing</button>
     </dialog>
     <dialog id="pdf-dialog">
       <div class="dialog-head">
-        <h2>导出为 PDF</h2>
-        <button data-close="pdf-dialog" aria-label="关闭导出说明">✕</button>
+        <h2>Export PDF</h2>
+        <button data-close="pdf-dialog" aria-label="Close export dialog">✕</button>
       </div>
       <p>
-        <strong>文字版适合正式投递。</strong>在打印窗口中选择「另存为
-        PDF」，保留可选中文字与超链接。
+        <strong>Text PDFs preserve selectable text.</strong> Choose Save as PDF in the print dialog
+        to keep text and links.
       </p>
       <ol>
-        <li>纸张：A4；缩放：100%</li>
-        <li>关闭「页眉和页脚」</li>
-        <li>开启「背景图形」，保留高亮色</li>
+        <li>Paper: A4 · Scale: 100%</li>
+        <li>Turn off headers and footers</li>
+        <li>Enable background graphics to keep highlights</li>
       </ol>
       <p class="muted">
-        也可直接下载图片版 PDF，固定版式、方便分享，但文字不可选择。若内嵌浏览器没有打印窗口，请在
-        Chrome、Edge 或 Safari 打开，导入备份后导出文字版。
+        For a fixed layout, download an image PDF. Its text is not selectable. If printing is
+        unavailable, open the editor in Chrome, Edge, or Safari, import your backup, and export a
+        text PDF.
       </p>
       <div class="dialog-actions">
-        <button id="download-pdf">直接下载图片版</button
-        ><button id="print-now" class="primary">导出文字版 · 推荐</button>
+        <button id="download-pdf">Download image PDF</button
+        ><button id="print-now" class="primary">Export text PDF</button>
       </div>
     </dialog>
     <div id="toast" role="status" hidden></div>

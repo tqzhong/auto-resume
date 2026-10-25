@@ -18,91 +18,99 @@ export const defaults = {
 };
 export function block(type = 'text') {
   if (type === 'row')
-    return { id: uid(), type, left: '公司 / 项目名称 · 职位', right: '2022.07 — 至今' };
+    return { id: uid(), type, left: 'Company / project · Role', right: '2022 — Present' };
   if (type === 'break') return { id: uid(), type };
   return {
     id: uid(),
     type: 'text',
-    text: '在这里填写内容。支持 **加粗**、*斜体*、==高亮== 和 ++下划线++。\n\n- 描述你的责任、技术方案与结果\n- 补充可核验的指标',
+    text: 'Write here. Use **bold**, *italic*, ==highlight==, and ++underline++.\n\n- Describe your work and its impact\n- Add specific, verifiable outcomes',
   };
 }
-export function section(title = '新模块') {
+export function section(title = 'New section') {
   return { id: uid(), title, blocks: [block('row'), block('text')] };
 }
+// Fictional sample content used in the editor and documentation.
 export function initialDocument() {
   return {
     schema: 'resume-studio',
     version: 1,
-    name: '我的社招简历',
+    name: 'Alex Morgan — Resume',
     settings: { ...defaults },
     header: {
       photo: null,
       fields: [
-        { id: uid(), kind: 'name', text: '林 一' },
-        { id: uid(), kind: 'text', text: '高级研发 / 算法工程师' },
+        { id: uid(), kind: 'name', text: 'Alex Morgan' },
+        { id: uid(), kind: 'text', text: 'Product Designer' },
         {
           id: uid(),
           kind: 'contact',
-          text: '上海 · 5 年经验 · name@example.com\n[GitHub](https://github.com/your-name) · [个人主页](https://example.com)',
+          text: 'London · alex@example.com\n[Portfolio](https://example.com) · [LinkedIn](https://www.linkedin.com)',
         },
       ],
     },
     sections: [
       {
         id: uid(),
-        title: '专业概述',
+        title: 'Profile',
         blocks: [
           {
             id: uid(),
             type: 'text',
-            text: '聚焦推荐、搜索与大模型应用，具备从模型实验到在线服务的落地经验。用两句话说明你的核心方向与最有说服力的成果。',
+            text: 'I turn complex problems into clear, useful digital experiences. My work connects thoughtful design with practical outcomes.',
           },
         ],
       },
       {
         id: uid(),
-        title: '工作经历',
+        title: 'Experience',
         blocks: [
           {
             id: uid(),
             type: 'row',
-            left: '**某互联网公司 · 高级工程师**',
-            right: '2022.07 — 至今',
+            left: '**Northstar Studio · Senior Designer**',
+            right: '2022 — Present',
           },
           {
             id: uid(),
             type: 'text',
-            text: '*推荐与智能应用团队*\n\n- **负责核心业务链路**，描述服务规模、技术难点与你承担的具体责任。\n- **设计评估与上线流程**，补充可核验的指标、对照口径和最终业务结果。',
+            text: '*Digital products & services*\n\n- **Led product design** for a shared workspace, from discovery to launch.\n- **Simplified everyday workflows** through research, prototyping, and close collaboration with engineering.',
           },
         ],
       },
       {
         id: uid(),
-        title: '核心项目',
+        title: 'Selected Work',
         blocks: [
-          { id: uid(), type: 'row', left: '**检索增强问答系统**', right: '2025.03 — 至今' },
+          { id: uid(), type: 'row', left: '**Atlas — A calmer workspace**', right: '2024 — 2025' },
           {
             id: uid(),
             type: 'text',
-            text: '*Python · PyTorch · 向量检索 · Reranker*\n\n- 围绕复杂知识问答，设计文档处理、混合召回、重排与引用校验链路。\n- 结果：填写真实的效果、时延和成本变化，并注明评估集与实验口径。',
+            text: '*Research · Prototyping · Design systems*\n\n- Turned customer insights into a focused, intuitive workspace for distributed teams.\n- Built a reusable component library to bring consistency across the product.',
           },
         ],
       },
       {
         id: uid(),
-        title: '专业技能',
+        title: 'Skills',
         blocks: [
           {
             id: uid(),
             type: 'text',
-            text: '**开发：** Python / C++ / SQL\n**算法：** 检索 / 排序 / 大模型\n**工程：** Linux / Docker / 服务化',
+            text: '**Design:** Product strategy, interaction design, prototyping\n**Tools:** Figma, Framer, Notion\n**Practice:** Research, accessibility, design systems',
           },
         ],
       },
       {
         id: uid(),
-        title: '教育背景',
-        blocks: [{ id: uid(), type: 'row', left: '**某大学 · 计算机硕士**', right: '2018 — 2021' }],
+        title: 'Education',
+        blocks: [
+          {
+            id: uid(),
+            type: 'row',
+            left: '**Northbridge University · BA Design**',
+            right: '2016 — 2020',
+          },
+        ],
       },
     ],
   };
@@ -122,7 +130,7 @@ export function normalizeDocument(input) {
     !input.header ||
     !Array.isArray(input.header.fields)
   )
-    throw new Error('不是有效的简历备份文件，或文件版本不受支持。');
+    throw new Error('This is not a valid resume backup, or its version is unsupported.');
   const settings = { ...defaults },
     raw = input.settings || {};
   const bounds = {
@@ -158,7 +166,7 @@ export function normalizeDocument(input) {
   return {
     schema: 'resume-studio',
     version: 1,
-    name: text(input.name, '我的简历').slice(0, 100),
+    name: text(input.name, 'My resume').slice(0, 100),
     settings,
     header: {
       photo,

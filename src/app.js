@@ -62,11 +62,11 @@ function persist() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(doc));
     persisted = true;
     status(
-      `已保存到当前浏览器 · ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`,
+      `Saved in this browser · ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`,
     );
   } catch {
     persisted = false;
-    status('浏览器存储已满或不可用，请下载备份', true);
+    status('Browser storage is unavailable. Please download a backup.', true);
   }
   return persisted;
 }
@@ -86,7 +86,7 @@ function updateHistory() {
 }
 function changed({ rerender = false } = {}) {
   persisted = false;
-  status('正在保存…');
+  status('Saving…');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(persist, 300);
   clearTimeout(historyTimer);
@@ -109,7 +109,7 @@ function undo() {
   renderAll();
   persist();
   updateHistory();
-  toast('已撤销，可重做');
+  toast('Undone. You can redo this change.');
 }
 function redo() {
   if (!future.length) return;
@@ -128,15 +128,15 @@ function action(label, act, data = {}, className = '') {
 function field({ label, value, target, id, key, rows = 1, remove = true, rich = false }) {
   const fieldId = `field-${target}-${id}-${key}`;
   const tools = rich
-    ? `<div class="format-bar" aria-label="${esc(label)}格式工具">${[
-        ['B', 'bold', '加粗'],
-        ['I', 'italic', '斜体'],
-        ['U', 'underline', '下划线'],
-        ['高亮', 'highlight', '高亮'],
-        ['链接', 'link', '超链接'],
-        ['• 列表', 'bullet', '无序列表'],
-        ['1. 列表', 'number', '有序列表'],
-        ['公式', 'math', '公式'],
+    ? `<div class="format-bar" aria-label="${esc(label)} formatting tools">${[
+        ['B', 'bold', 'Bold'],
+        ['I', 'italic', 'Italic'],
+        ['U', 'underline', 'Underline'],
+        ['Highlight', 'highlight', 'Highlight'],
+        ['Link', 'link', 'Hyperlink'],
+        ['• List', 'bullet', 'Bullet list'],
+        ['1. List', 'number', 'Numbered list'],
+        ['Math', 'math', 'Math'],
       ]
         .map(
           ([caption, format, title]) =>
@@ -144,19 +144,19 @@ function field({ label, value, target, id, key, rows = 1, remove = true, rich = 
         )
         .join('')}</div>`
     : '';
-  return `<label class="field" for="${fieldId}"><span class="field-label"><span>${label}</span>${remove ? `<button type="button" aria-label="删除${esc(label)}" data-action="remove-field" data-target="${target}" data-id="${id}" data-key="${key}" class="field-remove">×</button>` : ''}</span>${tools}<textarea id="${fieldId}" data-target="${target}" data-id="${id}" data-key="${key}" aria-label="${esc(label)}" rows="${rows}" class="${rich ? 'markdown-editor' : 'small'}" spellcheck="false">${esc(value)}</textarea></label>`;
+  return `<label class="field" for="${fieldId}"><span class="field-label"><span>${label}</span>${remove ? `<button type="button" aria-label="Remove ${esc(label)}" data-action="remove-field" data-target="${target}" data-id="${id}" data-key="${key}" class="field-remove">×</button>` : ''}</span>${tools}<textarea id="${fieldId}" data-target="${target}" data-id="${id}" data-key="${key}" aria-label="${esc(label)}" rows="${rows}" class="${rich ? 'markdown-editor' : 'small'}" spellcheck="false">${esc(value)}</textarea></label>`;
 }
 function renderHeader() {
-  return `<details class="edit-module" data-module="header" ${openModules.has('header') ? 'open' : ''}><summary class="module-summary"><span class="module-name">基本信息与照片</span><span class="count">页眉</span></summary><div class="module-content"><div class="photo-editor"><div class="photo-thumb">${doc.header.photo ? `<img src="${doc.header.photo}" alt="当前简历照片">` : '3 : 4 照片'}</div><div class="photo-buttons"><label class="button" for="photo-file">${doc.header.photo ? '更换照片' : '添加照片'}<input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp" class="sr-only"></label>${action(doc.header.photoHidden ? '恢复照片位' : '移除照片位', 'toggle-photo')}${doc.header.photo ? action('删除照片', 'delete-photo') : ''}<p>JPG / PNG / WebP · 照片随备份保存</p></div></div>${doc.header.fields.map((f) => field({ label: f.kind === 'name' ? '姓名 / 主标题' : f.kind === 'contact' ? '联系方式' : '求职方向 / 补充信息', value: f.text, target: 'header', id: f.id, key: 'text', rows: f.kind === 'contact' ? 2 : 1 })).join('')}<div class="add-blocks">${action('＋ 主标题', 'add-header', { kind: 'name' })}${action('＋ 信息区域', 'add-header', { kind: 'text' })}${action('＋ 联系方式', 'add-header', { kind: 'contact' })}</div></div></details>`;
+  return `<details class="edit-module" data-module="header" ${openModules.has('header') ? 'open' : ''}><summary class="module-summary"><span class="module-name">Profile & photo</span><span class="count">Header</span></summary><div class="module-content"><div class="photo-editor"><div class="photo-thumb">${doc.header.photo ? `<img src="${doc.header.photo}" alt="Current profile photo">` : '3 : 4 Photo'}</div><div class="photo-buttons"><label class="button" for="photo-file">${doc.header.photo ? 'Replace photo' : 'Add photo'}<input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp" class="sr-only"></label>${action(doc.header.photoHidden ? 'Restore photo frame' : 'Remove photo frame', 'toggle-photo')}${doc.header.photo ? action('Remove photo', 'delete-photo') : ''}<p>JPG / PNG / WebP · Included in backups</p></div></div>${doc.header.fields.map((f) => field({ label: f.kind === 'name' ? 'Name / headline' : f.kind === 'contact' ? 'Contact details' : 'Role / additional details', value: f.text, target: 'header', id: f.id, key: 'text', rows: f.kind === 'contact' ? 2 : 1 })).join('')}<div class="add-blocks">${action('＋ Headline', 'add-header', { kind: 'name' })}${action('＋ Details', 'add-header', { kind: 'text' })}${action('＋ Contact', 'add-header', { kind: 'contact' })}</div></div></details>`;
 }
 function renderBlock(b, s, index) {
-  const controls = `<div class="block-actions">${action('↑', 'move-block', { section: s.id, id: b.id, dir: -1 })}${action('↓', 'move-block', { section: s.id, id: b.id, dir: 1 })}${action('删除', 'delete-block', { section: s.id, id: b.id }, 'danger')}</div>`;
+  const controls = `<div class="block-actions">${action('↑', 'move-block', { section: s.id, id: b.id, dir: -1 })}${action('↓', 'move-block', { section: s.id, id: b.id, dir: 1 })}${action('Remove', 'delete-block', { section: s.id, id: b.id }, 'danger')}</div>`;
   let content = '';
   if (b.type === 'row')
-    content = `<div class="row-fields">${b.left !== null ? field({ label: '左侧信息', value: b.left, target: 'block', id: b.id, key: 'left' }) : `<div class="field">${action('＋ 左侧信息', 'restore-field', { id: b.id, key: 'left' }, 'compact-btn')}</div>`}${b.right !== null ? field({ label: '右侧时间 / 信息', value: b.right, target: 'block', id: b.id, key: 'right' }) : `<div class="field">${action('＋ 右侧信息', 'restore-field', { id: b.id, key: 'right' }, 'compact-btn')}</div>`}</div>`;
+    content = `<div class="row-fields">${b.left !== null ? field({ label: 'Left field', value: b.left, target: 'block', id: b.id, key: 'left' }) : `<div class="field">${action('＋ Left field', 'restore-field', { id: b.id, key: 'left' }, 'compact-btn')}</div>`}${b.right !== null ? field({ label: 'Date / right field', value: b.right, target: 'block', id: b.id, key: 'right' }) : `<div class="field">${action('＋ Right field', 'restore-field', { id: b.id, key: 'right' }, 'compact-btn')}</div>`}</div>`;
   else if (b.type === 'text')
     content = field({
-      label: '整块正文 · Markdown',
+      label: 'Body · Markdown',
       value: b.text,
       target: 'block',
       id: b.id,
@@ -165,11 +165,13 @@ function renderBlock(b, s, index) {
       remove: false,
       rich: true,
     });
-  else content = '<p class="muted">后面的内容从新的一页开始。可以移动这条分页线。</p>';
-  return `<div class="block-editor" data-block="${b.id}"><div class="block-head"><span>${String(index + 1).padStart(2, '0')} · ${b.type === 'row' ? '左右信息行' : b.type === 'text' ? '正文区域' : '手动分页'}</span>${controls}</div>${content}</div>`;
+  else
+    content =
+      '<p class="muted">The following content starts on a new page. Move this break as needed.</p>';
+  return `<div class="block-editor" data-block="${b.id}"><div class="block-head"><span>${String(index + 1).padStart(2, '0')} · ${b.type === 'row' ? 'Information row' : b.type === 'text' ? 'Text block' : 'Page break'}</span>${controls}</div>${content}</div>`;
 }
 function renderSection(s) {
-  return `<details class="edit-module" data-module="${s.id}" ${openModules.has(s.id) ? 'open' : ''}><summary class="module-summary"><span class="module-name">${esc(s.title?.replace(/[*_~+=#]/g, '') || '无标题模块')}</span><span class="count">${s.blocks.length} 个区域</span></summary><div class="module-content"><div class="module-actions">${action('↑ 上移', 'move-section', { id: s.id, dir: -1 })}${action('↓ 下移', 'move-section', { id: s.id, dir: 1 })}${action('复制模块', 'duplicate-section', { id: s.id })}${action('删除整个模块', 'delete-section', { id: s.id }, 'danger')}</div>${s.title !== null ? field({ label: '模块标题', value: s.title, target: 'section', id: s.id, key: 'title' }) : `<div class="empty">模块标题已删除。 ${action('恢复标题', 'restore-title', { id: s.id }, 'compact-btn')}</div>`}${s.blocks.map((b, i) => renderBlock(b, s, i)).join('')}${!s.blocks.length ? '<div class="empty">这个模块暂时没有内容，添加一个正文区域开始写。</div>' : ''}<div class="add-blocks">${action('＋ 左右信息行', 'add-block', { section: s.id, type: 'row' })}${action('＋ 正文区域', 'add-block', { section: s.id, type: 'text' })}${action('＋ 分页', 'add-block', { section: s.id, type: 'break' })}</div></div></details>`;
+  return `<details class="edit-module" data-module="${s.id}" ${openModules.has(s.id) ? 'open' : ''}><summary class="module-summary"><span class="module-name">${esc(s.title?.replace(/[*_~+=#]/g, '') || 'Untitled section')}</span><span class="count">${s.blocks.length} ${s.blocks.length === 1 ? 'block' : 'blocks'}</span></summary><div class="module-content"><div class="module-actions">${action('↑ Move up', 'move-section', { id: s.id, dir: -1 })}${action('↓ Move down', 'move-section', { id: s.id, dir: 1 })}${action('Duplicate section', 'duplicate-section', { id: s.id })}${action('Remove section', 'delete-section', { id: s.id }, 'danger')}</div>${s.title !== null ? field({ label: 'Section title', value: s.title, target: 'section', id: s.id, key: 'title' }) : `<div class="empty">Section title removed. ${action('Restore title', 'restore-title', { id: s.id }, 'compact-btn')}</div>`}${s.blocks.map((b, i) => renderBlock(b, s, i)).join('')}${!s.blocks.length ? '<div class="empty">This section is empty. Add a text block to get started.</div>' : ''}<div class="add-blocks">${action('＋ Information row', 'add-block', { section: s.id, type: 'row' })}${action('＋ Text block', 'add-block', { section: s.id, type: 'text' })}${action('＋ Page break', 'add-block', { section: s.id, type: 'break' })}</div></div></details>`;
 }
 function renderEditor() {
   const scroll = $('content-panel').scrollTop;
@@ -189,24 +191,24 @@ function select(key, label, options) {
   return `<label class="settings-row">${label}<select data-setting="${key}" aria-label="${label}">${options.map(([value, name]) => `<option value="${value}" ${doc.settings[key] === value ? 'selected' : ''}>${name}</option>`).join('')}</select></label>`;
 }
 function renderDesign() {
-  $('design-content').innerHTML = `<div class="setting-group"><h2>字体与颜色</h2>${select(
+  $('design-content').innerHTML = `<div class="setting-group"><h2>Typography & color</h2>${select(
     'font',
-    '中文字体',
+    'Font family',
     [
-      ['serif', '宋体 / 衬线'],
-      ['sans', '黑体 / 无衬线'],
+      ['serif', 'Serif'],
+      ['sans', 'Sans serif'],
     ],
-  )}<label class="settings-row">标题强调色<input type="color" data-setting="accent" aria-label="标题强调色" value="${doc.settings.accent}"></label>${slider('fontSize', '全局正文字号', 10, 20, 0.5, ' px')}${slider('titleSize', '模块标题字号', 15, 28, 0.5, ' px')}${slider('nameSize', '姓名字号', 24, 46, 1, ' px')}</div><div class="setting-group"><h2>行距与留白</h2>${slider('lineHeight', '全局行距', 1.15, 2.2, 0.05, ' 倍')}${slider('paragraphGap', '段落间距', 0, 16, 1, ' px')}${slider('listGap', '列表行间距', 0, 12, 1, ' px')}${slider('sectionGap', '模块间距', 4, 32, 1, ' px')}${slider('margin', '页面边距', 8, 24, 0.5, ' mm')}</div><div class="setting-group"><h2>照片</h2>${select(
+  )}<label class="settings-row">Accent color<input type="color" data-setting="accent" aria-label="Accent color" value="${doc.settings.accent}"></label>${slider('fontSize', 'Body size', 10, 20, 0.5, ' px')}${slider('titleSize', 'Section title size', 15, 28, 0.5, ' px')}${slider('nameSize', 'Name size', 24, 46, 1, ' px')}</div><div class="setting-group"><h2>Spacing & margins</h2>${slider('lineHeight', 'Line height', 1.15, 2.2, 0.05, '×')}${slider('paragraphGap', 'Paragraph spacing', 0, 16, 1, ' px')}${slider('listGap', 'List spacing', 0, 12, 1, ' px')}${slider('sectionGap', 'Section spacing', 4, 32, 1, ' px')}${slider('margin', 'Page margins', 8, 24, 0.5, ' mm')}</div><div class="setting-group"><h2>Photo</h2>${select(
     'photoSide',
-    '照片位置',
+    'Photo',
     [
-      ['right', '右侧'],
-      ['left', '左侧'],
+      ['right', 'Right'],
+      ['left', 'Left'],
     ],
-  )}${select('photoShape', '照片形状', [
-    ['square', '3 : 4 矩形'],
-    ['round', '圆形'],
-  ])}${slider('photoWidth', '照片宽度', 20, 40, 1, ' mm')}<p class="muted">照片默认居中裁切。可在「内容」中更换照片或删除照片位。</p></div><button id="reset-design">恢复默认排版</button>`;
+  )}${select('photoShape', 'Photo shape', [
+    ['square', '3 : 4 rectangle'],
+    ['round', 'Circle'],
+  ])}${slider('photoWidth', 'Photo width', 20, 40, 1, ' mm')}<p class="muted">Photos are cropped from the center. Replace or remove the photo in Content.</p></div><button id="reset-design">Reset layout</button>`;
 }
 function renderAll() {
   renderEditor();
@@ -239,7 +241,7 @@ function handleAction(button) {
       doc.header.fields.push({
         id: uid(),
         kind: button.dataset.kind,
-        text: button.dataset.kind === 'name' ? '你的姓名' : '填写信息',
+        text: button.dataset.kind === 'name' ? 'Your name' : 'Add details',
       });
       openModules.add('header');
     }
@@ -249,8 +251,8 @@ function handleAction(button) {
       else if (button.dataset.target === 'section') s.title = null;
       else if (b) b[key] = null;
     }
-    if (a === 'restore-field' && b) b[key] = key === 'left' ? '左侧信息' : '时间';
-    if (a === 'restore-title') s.title = '模块标题';
+    if (a === 'restore-field' && b) b[key] = key === 'left' ? 'Left field' : 'Date';
+    if (a === 'restore-title') s.title = 'Section title';
     if (a === 'toggle-photo') doc.header.photoHidden = !doc.header.photoHidden;
     if (a === 'delete-photo') doc.header.photo = null;
     if (a === 'delete-section') doc.sections = doc.sections.filter((s) => s.id !== id);
@@ -270,7 +272,7 @@ function handleAction(button) {
     if (a === 'move-block') move(s.blocks, id, Number(button.dataset.dir));
   });
   if (['delete-section', 'delete-block', 'remove-field', 'delete-photo'].includes(a))
-    toast('已删除，点击顶部「撤销」可恢复');
+    toast('Removed. Use Undo to restore.');
 }
 function applyFormat(button) {
   const area = $(button.dataset.for),
@@ -279,16 +281,16 @@ function applyFormat(button) {
     selected = area.value.slice(start, end),
     format = button.dataset.format;
   const wraps = {
-    bold: ['**', '**', '重点文字'],
-    italic: ['*', '*', '斜体'],
-    underline: ['++', '++', '下划线'],
-    highlight: ['==', '==', '高亮'],
-    link: ['[', '](https://example.com)', '链接文字'],
+    bold: ['**', '**', 'Highlighted text'],
+    italic: ['*', '*', 'Italic'],
+    underline: ['++', '++', 'Underline'],
+    highlight: ['==', '==', 'Highlight'],
+    link: ['[', '](https://example.com)', 'Link text'],
     math: ['$', '$', 'F_1=\\frac{2PR}{P+R}'],
   };
   let replacement;
   if (format === 'bullet' || format === 'number') {
-    replacement = (selected || '条目')
+    replacement = (selected || 'List item')
       .split('\n')
       .map((line, i) => `${format === 'bullet' ? '-' : i + 1 + '.'} ${line}`)
       .join('\n');
@@ -320,7 +322,7 @@ document.addEventListener('input', (event) => {
       if (el.dataset.target === 'section') {
         const detail = el.closest('details');
         detail.querySelector('.module-name').textContent =
-          el.value.replace(/[*_~+=#]/g, '') || '无标题模块';
+          el.value.replace(/[*_~+=#]/g, '') || 'Untitled section';
       }
       changed();
     }
@@ -365,8 +367,8 @@ $('undo').addEventListener('click', undo);
 $('redo').addEventListener('click', redo);
 $('save').addEventListener('click', () => {
   record();
-  if (persist()) toast('已保存。关闭后用同一浏览器、同一网址打开即可继续。');
-  else toast('本地保存失败，请点击「备份」下载文件。');
+  if (persist()) toast('Saved. Reopen this address in the same browser to continue.');
+  else toast('Saving failed. Download a backup to keep your work.');
 });
 $('help').addEventListener('click', () => $('help-dialog').showModal());
 function download(content, name, type) {
@@ -380,7 +382,7 @@ function download(content, name, type) {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 function filename() {
-  return (doc.name || '我的简历').replace(/[\\/:*?"<>|]/g, '-').slice(0, 80);
+  return (doc.name || 'My resume').replace(/[\\/:*?"<>|]/g, '-').slice(0, 80);
 }
 $('backup').addEventListener('click', () => {
   persist();
@@ -389,13 +391,13 @@ $('backup').addEventListener('click', () => {
     filename() + '.resume.json',
     'application/json',
   );
-  toast('已下载备份文件，包含全部内容、排版和照片');
+  toast('Backup downloaded with all content, layout settings, and photos.');
 });
 $('import-file').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
   try {
-    if (file.size > 6 * 1024 * 1024) throw Error('备份文件过大，请使用 6 MB 以内的 JSON 文件。');
+    if (file.size > 6 * 1024 * 1024) throw Error('Please choose a JSON backup smaller than 6 MB.');
     const next = normalizeDocument(JSON.parse(await file.text()));
     mutate(() => {
       doc = next;
@@ -403,9 +405,9 @@ $('import-file').addEventListener('change', async (e) => {
     });
     renderDesign();
     persist();
-    toast('备份已导入；如需返回之前的草稿，点击「撤销」');
+    toast('Backup imported. Use Undo to return to the previous draft.');
   } catch (error) {
-    toast('导入失败：' + error.message);
+    toast('Import failed: ' + error.message);
   }
   e.target.value = '';
 });
@@ -415,8 +417,8 @@ document.addEventListener('change', async (e) => {
   if (!file) return;
   try {
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
-      throw Error('请选择 JPG、PNG 或 WebP 图片');
-    if (file.size > 15 * 1024 * 1024) throw Error('照片请小于 15 MB');
+      throw Error('Choose a JPG, PNG, or WebP image.');
+    if (file.size > 15 * 1024 * 1024) throw Error('Please choose a photo smaller than 15 MB.');
     const url = URL.createObjectURL(file);
     try {
       const img = new Image();
@@ -434,7 +436,7 @@ document.addEventListener('change', async (e) => {
         doc.header.photo = canvas.toDataURL('image/jpeg', 0.88);
         doc.header.photoHidden = false;
       });
-      toast('照片已添加，会随草稿与备份一起保存');
+      toast('Photo added. It will be saved with your draft and backups.');
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -453,7 +455,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key.toLowerCase() === 's') {
     event.preventDefault();
     persist();
-    toast('已保存到当前浏览器');
+    toast('Saved in this browser');
   }
   if (event.key.toLowerCase() === 'z' && !event.target.matches('textarea,input')) {
     event.preventDefault();
@@ -463,7 +465,7 @@ document.addEventListener('keydown', (event) => {
 
 function resumeMarkup() {
   const s = doc.settings,
-    header = `<header class="cv-header ${doc.header.photoHidden ? 'without-photo' : ''} ${s.photoSide === 'left' ? 'photo-left' : ''}"><div class="header-fields">${doc.header.fields.map((f) => `<div class="${f.kind === 'name' ? 'cv-name' : f.kind === 'contact' ? 'cv-contact' : 'cv-headline'}">${md(f.text)}</div>`).join('')}</div>${doc.header.photoHidden ? '' : doc.header.photo ? `<img class="cv-photo ${s.photoShape === 'round' ? 'round' : ''}" src="${doc.header.photo}" alt="个人照片">` : `<div class="cv-photo photo-placeholder ${s.photoShape === 'round' ? 'round' : ''}"><span>照片位置</span><small>3 : 4</small></div>`}</header>`;
+    header = `<header class="cv-header ${doc.header.photoHidden ? 'without-photo' : ''} ${s.photoSide === 'left' ? 'photo-left' : ''}"><div class="header-fields">${doc.header.fields.map((f) => `<div class="${f.kind === 'name' ? 'cv-name' : f.kind === 'contact' ? 'cv-contact' : 'cv-headline'}">${md(f.text)}</div>`).join('')}</div>${doc.header.photoHidden ? '' : doc.header.photo ? `<img class="cv-photo ${s.photoShape === 'round' ? 'round' : ''}" src="${doc.header.photo}" alt="Profile photo">` : `<div class="cv-photo photo-placeholder ${s.photoShape === 'round' ? 'round' : ''}"><span>Photo</span><small>3 : 4</small></div>`}</header>`;
   return `<main class="cv">${header}${doc.sections.map((section) => `<section class="cv-section">${section.title !== null ? `<div class="section-title">${md(section.title)}</div>` : ''}${section.blocks.map((b) => (b.type === 'row' ? `<div class="cv-row">${b.left !== null ? `<div class="row-left">${md(b.left)}</div>` : ''}${b.right !== null ? `<div class="row-right">${md(b.right)}</div>` : ''}</div>` : b.type === 'break' ? '<div class="page-break"></div>' : `<div class="cv-text">${md(b.text)}</div>`)).join('')}</section>`).join('')}</main>`;
 }
 function designCss() {
@@ -484,10 +486,10 @@ function renderPreview() {
     base = new URL('./', location.href).href,
     html = resumeMarkup(),
     css = designCss();
-  $('page-count').textContent = '排版中…';
+  $('page-count').textContent = 'Preparing…';
   const script = `(async()=>{try{await document.fonts.ready;const previewer=new Paged.Previewer();const flow=await previewer.preview(document.getElementById('source').innerHTML,[${JSON.stringify(base + 'resume.css')},{'resume-dynamic.css':${JSON.stringify(css)}}],document.getElementById('pages'));await document.fonts.ready;parent.postMessage({type:'resume-preview-ready',revision:${rev},pages:flow.total,height:document.getElementById('pages').scrollHeight},${JSON.stringify(location.origin)});}catch(error){parent.postMessage({type:'resume-preview-error',revision:${rev},message:String(error)},${JSON.stringify(location.origin)});}})();`;
   $('preview').srcdoc =
-    `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><base href="${esc(base)}"><title>${esc(filename())}</title><link rel="stylesheet" href="vendor/katex.min.css"><style>html,body{margin:0;background:transparent}body{width:794px}.pagedjs_page{background:white;margin:0 0 18px;box-shadow:0 3px 14px #20372814}.pagedjs_page:last-child{margin-bottom:0}@media print{html,body{width:auto;background:white}.pagedjs_page{margin:0!important;box-shadow:none!important;break-after:page}.pagedjs_page:last-child{break-after:auto}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style><script>window.PagedConfig={auto:false};<\/script><script src="vendor/paged.polyfill.js"><\/script></head><body><template id="source">${html}</template><div id="pages"></div><script>${script}<\/script></body></html>`;
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><base href="${esc(base)}"><title>${esc(filename())}</title><link rel="stylesheet" href="vendor/katex.min.css"><style>html,body{margin:0;background:transparent}body{width:794px}.pagedjs_page{background:white;margin:0 0 18px;box-shadow:0 3px 14px #20372814}.pagedjs_page:last-child{margin-bottom:0}@media print{html,body{width:auto;background:white}.pagedjs_page{margin:0!important;box-shadow:none!important;break-after:page}.pagedjs_page:last-child{break-after:auto}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style><script>window.PagedConfig={auto:false};<\/script><script src="vendor/paged.polyfill.js"><\/script></head><body><template id="source">${html}</template><div id="pages"></div><script>${script}<\/script></body></html>`;
 }
 window.addEventListener('message', (event) => {
   if (event.source !== $('preview').contentWindow) return;
@@ -496,12 +498,12 @@ window.addEventListener('message', (event) => {
   if (data.type === 'resume-preview-ready') {
     previewHeight = data.height;
     readyRevision = data.revision;
-    $('page-count').textContent = `${data.pages} 页`;
+    $('page-count').textContent = `${data.pages} ${data.pages === 1 ? 'page' : 'pages'}`;
     $('export').disabled = false;
     fitPreview();
   } else if (data.type === 'resume-preview-error') {
-    $('page-count').textContent = '排版失败';
-    toast('预览排版失败，请尝试缩短异常内容或重新加载。草稿仍已保留。');
+    $('page-count').textContent = 'Preview unavailable';
+    toast('Preview failed. Try simplifying the content or reload. Your draft has been kept.');
     console.error(data.message);
   }
 });
@@ -536,11 +538,11 @@ $('download-pdf').addEventListener('click', async () => {
     const frame = $('preview').contentDocument;
     await frame.fonts.ready;
     const pages = Array.from(frame.querySelectorAll('.pagedjs_page'));
-    if (!pages.length) throw Error('预览还没有准备好');
+    if (!pages.length) throw Error('The preview is not ready yet.');
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
-    pdf.setProperties({ title: doc.name, creator: '简历工坊' });
+    pdf.setProperties({ title: doc.name, creator: 'Auto Resume' });
     for (let i = 0; i < pages.length; i++) {
-      button.textContent = `正在生成 ${i + 1} / ${pages.length} 页…`;
+      button.textContent = `Generating ${i + 1} / ${pages.length} pages…`;
       const page = pages[i],
         canvas = await html2canvas(page, {
           scale: 2,
@@ -567,9 +569,9 @@ $('download-pdf').addEventListener('click', async () => {
     }
     download(pdf.output('arraybuffer'), filename() + '.pdf', 'application/pdf');
     $('pdf-dialog').close();
-    toast('PDF 已下载。投递招聘系统时，推荐使用文字版 PDF。');
+    toast('PDF downloaded. Use the text version when selectable text is needed.');
   } catch (error) {
-    toast('直接下载未成功：' + error.message + '。可使用文字版 PDF 导出。');
+    toast('Download failed: ' + error.message + '. Try exporting a text PDF instead.');
     console.error(error);
   } finally {
     button.disabled = false;
@@ -594,5 +596,5 @@ handle.addEventListener('pointerdown', (event) => {
   handle.addEventListener('pointerup', stop);
 });
 renderAll();
-if (storedError) status('未能读取旧草稿，可导入备份恢复', true);
-else status('草稿保存在当前浏览器');
+if (storedError) status('Could not read the saved draft. Import a backup to restore it.', true);
+else status('Drafts stay in this browser');

@@ -27,7 +27,7 @@
     "esbuild": "0.25.11",
     "prettier": "3.9.10"
   },
-  "description": "A flexible Chinese resume editor with Markdown, photos, local drafts and A4 PDF export.",
+  "description": "A flexible resume editor with Markdown, photos, local drafts and A4 PDF export.",
   "license": "MIT",
   "repository": {
     "type": "git",
