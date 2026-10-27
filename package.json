@@ -11,6 +11,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@fontsource-variable/noto-sans-sc": "5.3.1",
+    "@fontsource-variable/noto-serif-sc": "5.3.1",
     "dompurify": "3.4.17",
     "html2canvas": "1.4.1",
     "jspdf": "4.2.1",

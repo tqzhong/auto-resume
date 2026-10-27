@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { renderMarkdown } from './markdown.js';
 import { fitHeaderPhoto } from './photo-layout.js';
+import { prepareResumeFonts, sharePreviewFonts, createExportFrame } from './typography.js';
 import {
   STORAGE_KEY,
   clone,
@@ -196,10 +197,10 @@ function renderDesign() {
     'font',
     'Font family',
     [
-      ['serif', 'Serif'],
-      ['sans', 'Sans serif'],
+      ['serif', 'Noto Serif'],
+      ['sans', 'Noto Sans'],
     ],
-  )}<label class="settings-row">Accent color<input type="color" data-setting="accent" aria-label="Accent color" value="${doc.settings.accent}"></label>${slider('fontSize', 'Body size', 10, 20, 0.5, ' px')}${slider('titleSize', 'Section title size', 15, 28, 0.5, ' px')}${slider('nameSize', 'Name size', 24, 46, 1, ' px')}</div><div class="setting-group"><h2>Spacing & margins</h2>${slider('lineHeight', 'Line height', 1.15, 2.2, 0.05, '×')}${slider('paragraphGap', 'Paragraph spacing', 0, 16, 1, ' px')}${slider('listGap', 'List spacing', 0, 12, 1, ' px')}${slider('headerGap', 'Header spacing', 0, 60, 1, ' px')}${slider('sectionGap', 'Section spacing', 4, 32, 1, ' px')}${slider('margin', 'Page margins', 8, 24, 0.5, ' mm')}</div><div class="setting-group"><h2>Photo</h2>${select(
+  )}<label class="settings-row">Accent color<input type="color" data-setting="accent" aria-label="Accent color" value="${doc.settings.accent}"></label>${slider('fontSize', 'Body size', 10, 20, 0.5, ' px')}${slider('boldWeight', 'Bold weight', 700, 900, 100, '')}${slider('titleSize', 'Section title size', 15, 28, 0.5, ' px')}${slider('nameSize', 'Name size', 24, 46, 1, ' px')}</div><div class="setting-group"><h2>Spacing & margins</h2>${slider('lineHeight', 'Line height', 1.15, 2.2, 0.05, '×')}${slider('paragraphGap', 'Paragraph spacing', 0, 16, 1, ' px')}${slider('listGap', 'List spacing', 0, 12, 1, ' px')}${slider('headerGap', 'Header spacing', 0, 60, 1, ' px')}${slider('sectionGap', 'Section spacing', 4, 32, 1, ' px')}${slider('margin', 'Page margins', 8, 24, 0.5, ' mm')}</div><div class="setting-group"><h2>Photo</h2>${select(
     'photoSide',
     'Photo',
     [
@@ -485,9 +486,9 @@ function designCss() {
   const s = doc.settings;
   const font =
     s.font === 'sans'
-      ? '"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif'
-      : '"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif';
-  return `@page{size:A4;margin:${s.margin}mm}.cv{font-family:${font};font-size:${s.fontSize}px;line-height:${s.lineHeight}}.cv-name{font-size:${s.nameSize}px;color:${s.accent}}.section-title{font-size:${s.titleSize}px!important;color:${s.accent};border-color:${s.accent}}.cv-section{margin-bottom:${s.sectionGap}px}.cv p{margin-bottom:${s.paragraphGap}px}.cv p:last-child{margin-bottom:0}.cv-text{margin-bottom:${s.paragraphGap}px}.cv li{margin-top:${s.listGap}px;margin-bottom:${s.listGap}px}.cv-header{--photo-width:${s.photoWidth}mm;grid-template-columns:minmax(0,1fr) var(--photo-width);margin-bottom:${s.headerGap}px}.cv-header.photo-left{grid-template-columns:var(--photo-width) minmax(0,1fr)}.cv-photo{width:var(--photo-width);height:var(--photo-height,auto)}`;
+      ? '"Noto Sans SC Variable","Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif'
+      : '"Noto Serif SC Variable","Noto Serif CJK SC","Songti SC","SimSun",serif';
+  return `@page{size:A4;margin:${s.margin}mm}.cv{--resume-bold-weight:${s.boldWeight};font-family:${font};font-size:${s.fontSize}px;line-height:${s.lineHeight}}.cv-name{font-size:${s.nameSize}px;color:${s.accent}}.section-title{font-size:${s.titleSize}px!important;color:${s.accent};border-color:${s.accent}}.cv-section{margin-bottom:${s.sectionGap}px}.cv p{margin-bottom:${s.paragraphGap}px}.cv p:last-child{margin-bottom:0}.cv-text{margin-bottom:${s.paragraphGap}px}.cv li{margin-top:${s.listGap}px;margin-bottom:${s.listGap}px}.cv-header{--photo-width:${s.photoWidth}mm;grid-template-columns:minmax(0,1fr) var(--photo-width);margin-bottom:${s.headerGap}px}.cv-header.photo-left{grid-template-columns:var(--photo-width) minmax(0,1fr)}.cv-photo{width:var(--photo-width);height:var(--photo-height,auto)}`;
 }
 function schedulePreview(delay = 450) {
   clearTimeout(previewTimer);
@@ -500,9 +501,9 @@ function renderPreview() {
     html = resumeMarkup(),
     css = designCss();
   $('page-count').textContent = 'Preparing…';
-  const script = `(async()=>{try{await (${fitHeaderPhoto.toString()})(document.getElementById('source'),${JSON.stringify(doc.settings)});await document.fonts.ready;const previewer=new Paged.Previewer();const flow=await previewer.preview(document.getElementById('source').innerHTML,[${JSON.stringify(base + 'resume.css')},{'resume-dynamic.css':${JSON.stringify(css)}}],document.getElementById('pages'));await document.fonts.ready;parent.postMessage({type:'resume-preview-ready',revision:${rev},pages:flow.total,height:document.getElementById('pages').scrollHeight},${JSON.stringify(location.origin)});}catch(error){parent.postMessage({type:'resume-preview-error',revision:${rev},message:String(error)},${JSON.stringify(location.origin)});}})();`;
+  const script = `(async()=>{try{await (${prepareResumeFonts.toString()})(document.getElementById('source'),${JSON.stringify(doc.settings)});await (${fitHeaderPhoto.toString()})(document.getElementById('source'),${JSON.stringify(doc.settings)});await document.fonts.ready;const previewer=new Paged.Previewer();const flow=await previewer.preview(document.getElementById('source').innerHTML,[${JSON.stringify(base + 'resume.css')},{'resume-dynamic.css':${JSON.stringify(css)}}],document.getElementById('pages'));await document.fonts.ready;parent.postMessage({type:'resume-preview-ready',revision:${rev},pages:flow.total,height:document.getElementById('pages').scrollHeight},${JSON.stringify(location.origin)});}catch(error){parent.postMessage({type:'resume-preview-error',revision:${rev},message:String(error)},${JSON.stringify(location.origin)});}})();`;
   $('preview').srcdoc =
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><base href="${esc(base)}"><title>${esc(filename())}</title><link rel="stylesheet" href="vendor/katex.min.css"><link rel="stylesheet" href="resume.css"><style>${css}</style><style>html,body{margin:0;background:transparent}body{width:794px}.pagedjs_page{background:white;margin:0 0 18px;box-shadow:0 3px 14px #20372814}.pagedjs_page:last-child{margin-bottom:0}@media print{html,body{width:auto;background:white}.pagedjs_page{margin:0!important;box-shadow:none!important;break-after:page}.pagedjs_page:last-child{break-after:auto}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style><script>window.PagedConfig={auto:false};<\/script><script src="vendor/paged.polyfill.js"><\/script></head><body><template id="source">${html}</template><div id="pages"></div><script>${script}<\/script></body></html>`;
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><base href="${esc(base)}"><title>${esc(filename())}</title><link rel="stylesheet" href="vendor/katex.min.css"><link rel="stylesheet" href="vendor/resume-fonts.css"><link rel="stylesheet" href="resume.css"><style>${css}</style><style>html,body{margin:0;background:transparent}body{width:794px}.pagedjs_page{background:white;margin:0 0 18px;box-shadow:0 3px 14px #20372814}.pagedjs_page:last-child{margin-bottom:0}@media print{html,body{width:auto;background:white}.pagedjs_page{margin:0!important;box-shadow:none!important;break-after:page}.pagedjs_page:last-child{break-after:auto}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style><script>window.PagedConfig={auto:false};<\/script><script src="vendor/paged.polyfill.js"><\/script></head><body><template id="source">${html}</template><div id="pages"></div><script>${script}<\/script></body></html>`;
 }
 window.addEventListener('message', (event) => {
   if (event.source !== $('preview').contentWindow) return;
@@ -547,9 +548,12 @@ $('download-pdf').addEventListener('click', async () => {
   button.disabled = true;
   $('print-now').disabled = true;
   const before = button.textContent;
+  let releaseFonts = () => {};
+  let exportFrame;
   try {
-    const frame = $('preview').contentDocument;
-    await frame.fonts.ready;
+    exportFrame = await createExportFrame($('preview').contentDocument);
+    const frame = exportFrame.contentDocument;
+    releaseFonts = sharePreviewFonts(frame);
     const pages = Array.from(frame.querySelectorAll('.pagedjs_page'));
     if (!pages.length) throw Error('The preview is not ready yet.');
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
@@ -565,7 +569,7 @@ $('download-pdf').addEventListener('click', async () => {
           windowWidth: 794,
         });
       if (i) pdf.addPage();
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.96), 'JPEG', 0, 0, 210, 297);
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
       const box = page.getBoundingClientRect();
       for (const link of page.querySelectorAll('a[href]')) {
         const href = link.getAttribute('href');
@@ -587,6 +591,8 @@ $('download-pdf').addEventListener('click', async () => {
     toast('Download failed: ' + error.message + '. Try exporting a text PDF instead.');
     console.error(error);
   } finally {
+    releaseFonts();
+    exportFrame?.remove();
     button.disabled = false;
     button.textContent = before;
     $('print-now').disabled = false;

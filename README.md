@@ -10,7 +10,7 @@ A minimal résumé editor with Markdown, flexible sections, and live A4 previews
 
 - **Flexible structure** — Add, rearrange, or remove sections and individual fields.
 - **Expressive writing** — Markdown, links, lists, highlights, and mathematical notation.
-- **Precise layout** — Fine-tune typography and spacing, with adaptive photos and automatic pagination.
+- **Precise layout** — Bundled fonts, adjustable emphasis and spacing, adaptive photos, and automatic pagination.
 - **Portable drafts** — Automatic browser saves, undo and redo, and complete JSON backups.
 - **PDF export** — Print to a text PDF, or download an image PDF directly.
 

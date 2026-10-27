@@ -4,6 +4,7 @@ export const clone = (value) => JSON.parse(JSON.stringify(value));
 export const defaults = {
   font: 'serif',
   fontSize: 14,
+  boldWeight: 800,
   lineHeight: 1.65,
   titleSize: 20,
   nameSize: 34,
@@ -138,6 +139,7 @@ export function normalizeDocument(input) {
     raw = input.settings || {};
   const bounds = {
     fontSize: [10, 20],
+    boldWeight: [700, 900],
     lineHeight: [1.15, 2.2],
     titleSize: [15, 28],
     nameSize: [24, 46],

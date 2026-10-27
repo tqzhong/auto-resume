@@ -89,3 +89,23 @@ test('raw HTML and unsafe links cannot execute or load remote images', () => {
   assert.ok(!html.includes('href="javascript:'));
   assert.ok(!html.includes('<img'));
 });
+
+// Older drafts gain stronger emphasis without changing content or spacing.
+test('typography settings survive backups and default safely for existing drafts', () => {
+  const d = initialDocument();
+  d.settings.font = 'sans';
+  d.settings.boldWeight = 900;
+  assert.equal(normalizeDocument(JSON.parse(JSON.stringify(d))).settings.boldWeight, 900);
+  delete d.settings.boldWeight;
+  const legacy = normalizeDocument(d);
+  assert.equal(legacy.settings.boldWeight, 800);
+  assert.equal(legacy.settings.font, 'sans');
+  assert.deepEqual(legacy.sections, d.sections);
+  assert.deepEqual(legacy.header.fields, d.header.fields);
+  d.settings.boldWeight = 1200;
+  assert.equal(normalizeDocument(d).settings.boldWeight, 900);
+  d.settings.boldWeight = 300;
+  assert.equal(normalizeDocument(d).settings.boldWeight, 700);
+  d.settings.boldWeight = 'invalid';
+  assert.equal(normalizeDocument(d).settings.boldWeight, 800);
+});

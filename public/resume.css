@@ -12,7 +12,9 @@ body {
   background: transparent;
 }
 .cv {
-  font-family: 'Songti SC', 'STSong', 'Noto Serif CJK SC', 'SimSun', serif;
+  font-family: 'Noto Serif SC Variable', 'Noto Serif CJK SC', 'Songti SC', 'SimSun', serif;
+  font-weight: 400;
+  font-variant-numeric: lining-nums proportional-nums;
   color: #252b32;
   font-size: 14px;
   line-height: 1.65;
@@ -31,7 +33,7 @@ body {
   text-underline-offset: 2px;
 }
 .cv strong {
-  font-weight: 700;
+  font-weight: var(--resume-bold-weight, 800);
 }
 .cv em {
   font-style: italic;

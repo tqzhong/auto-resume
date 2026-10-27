@@ -1,6 +1,7 @@
 import { build } from 'esbuild';
 import { mkdir, copyFile, cp, readFile, writeFile, readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { bundleResumeFonts } from './fonts.mjs';
 
 // Only dist/ is generated. Keep editable HTML and styles in public/.
 await rm('dist', { recursive: true, force: true });
@@ -18,6 +19,7 @@ await build({
 await copyFile('node_modules/pagedjs/dist/paged.polyfill.js', 'dist/vendor/paged.polyfill.js');
 await copyFile('node_modules/katex/dist/katex.min.css', 'dist/vendor/katex.min.css');
 await cp('node_modules/katex/dist/fonts', 'dist/vendor/fonts', { recursive: true });
+await bundleResumeFonts();
 
 // Retain notices for installed runtime dependencies, including transitives used
 // by bundled libraries. esbuild also preserves embedded license comments.
