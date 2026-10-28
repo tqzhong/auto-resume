@@ -14,6 +14,8 @@ export const defaults = {
   paragraphGap: 6,
   listGap: 3,
   accent: '#353387',
+  nameColor: '#353387',
+  sectionTitleColor: '#353387',
   photoWidth: 29,
   photoSizing: 'auto',
   photoMinHeight: 28,
@@ -155,6 +157,9 @@ export function normalizeDocument(input) {
     settings[key] = clamp(raw[key] ?? defaults[key], lo, hi, defaults[key]);
   if (['serif', 'sans'].includes(raw.font)) settings.font = raw.font;
   if (/^#[0-9a-f]{6}$/i.test(raw.accent)) settings.accent = raw.accent;
+  // Preserve the shared accent from older drafts when a separate color is absent.
+  for (const key of ['nameColor', 'sectionTitleColor'])
+    settings[key] = /^#[0-9a-f]{6}$/i.test(raw[key]) ? raw[key] : settings.accent;
   if (['left', 'right'].includes(raw.photoSide)) settings.photoSide = raw.photoSide;
   if (['square', 'round'].includes(raw.photoShape)) settings.photoShape = raw.photoShape;
   if (['auto', 'fixed'].includes(raw.photoSizing)) settings.photoSizing = raw.photoSizing;

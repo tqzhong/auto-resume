@@ -109,3 +109,32 @@ test('typography settings survive backups and default safely for existing drafts
   d.settings.boldWeight = 'invalid';
   assert.equal(normalizeDocument(d).settings.boldWeight, 800);
 });
+
+test('separate colors preserve legacy accents and survive independent edits and backups', () => {
+  const legacy = initialDocument();
+  delete legacy.settings.nameColor;
+  delete legacy.settings.sectionTitleColor;
+  legacy.settings.accent = '#216869';
+  const restored = normalizeDocument(legacy);
+  assert.equal(restored.settings.nameColor, '#216869');
+  assert.equal(restored.settings.sectionTitleColor, '#216869');
+  assert.deepEqual(restored.header.fields, legacy.header.fields);
+  assert.deepEqual(restored.sections, legacy.sections);
+
+  restored.settings.nameColor = '#1d3557';
+  restored.settings.sectionTitleColor = '#9b442c';
+  const backup = normalizeDocument(JSON.parse(JSON.stringify(restored)));
+  assert.equal(backup.settings.nameColor, '#1d3557');
+  assert.equal(backup.settings.sectionTitleColor, '#9b442c');
+
+  legacy.settings.nameColor = '#112233';
+  assert.equal(normalizeDocument(legacy).settings.nameColor, '#112233');
+  assert.equal(normalizeDocument(legacy).settings.sectionTitleColor, '#216869');
+  legacy.settings.nameColor = 'red; background: url(https://bad.test)';
+  legacy.settings.sectionTitleColor = null;
+  assert.equal(normalizeDocument(legacy).settings.nameColor, '#216869');
+  assert.equal(normalizeDocument(legacy).settings.sectionTitleColor, '#216869');
+  legacy.settings.accent = 'invalid';
+  assert.equal(normalizeDocument(legacy).settings.nameColor, '#353387');
+  assert.equal(normalizeDocument(legacy).settings.sectionTitleColor, '#353387');
+});
