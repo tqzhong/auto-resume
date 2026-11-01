@@ -307,7 +307,10 @@ button:disabled {
   tab-size: 2;
 }
 .field textarea.markdown-editor {
-  min-height: 174px;
+  min-height: 140px;
+  height: 280px;
+  max-height: 2000px;
+  resize: none;
   font-family: ui-monospace, SFMono-Regular, Menlo, 'PingFang SC', monospace;
   font-size: 12px;
   line-height: 1.8;
@@ -373,7 +376,7 @@ button:disabled {
   color: #64776a;
 }
 .format-bar + textarea {
-  border-radius: 0 0 6px 6px !important;
+  border-radius: 0 !important;
 }
 .add-blocks {
   display: flex;
@@ -812,4 +815,41 @@ dialog code {
   .preview-panel {
     min-height: 0;
   }
+}
+
+.editor-height-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 30px;
+  border: 1px solid #d9e1d8;
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  background: #f4f7f1;
+  color: #657b69;
+  font-size: 11px;
+  cursor: ns-resize;
+  touch-action: none;
+  user-select: none;
+}
+.editor-height-handle::before {
+  content: '';
+  width: 18px;
+  height: 5px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+}
+.editor-height-handle:hover {
+  background: #e9f0e4;
+  color: #345b40;
+}
+.editor-height-handle:focus-visible {
+  outline: 2px solid #517f6b;
+  outline-offset: 2px;
+}
+.resizing-editor-height,
+.resizing-editor-height * {
+  cursor: ns-resize !important;
+  user-select: none !important;
 }

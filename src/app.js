@@ -1,3 +1,4 @@
+import { createEditorResizer, MIN_EDITOR_HEIGHT, MAX_EDITOR_HEIGHT } from './editor-resize.js';
 import DOMPurify from 'dompurify';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -127,6 +128,7 @@ function action(label, act, data = {}, className = '') {
     .map(([k, v]) => `data-${k}="${esc(v)}"`)
     .join(' ')} class="${className}">${label}</button>`;
 }
+const editorResizer = createEditorResizer(document.getElementById('editor-content'));
 function field({ label, value, target, id, key, rows = 1, remove = true, rich = false }) {
   const fieldId = `field-${target}-${id}-${key}`;
   const tools = rich
@@ -146,7 +148,7 @@ function field({ label, value, target, id, key, rows = 1, remove = true, rich = 
         )
         .join('')}</div>`
     : '';
-  return `<label class="field" for="${fieldId}"><span class="field-label"><span>${label}</span>${remove ? `<button type="button" aria-label="Remove ${esc(label)}" data-action="remove-field" data-target="${target}" data-id="${id}" data-key="${key}" class="field-remove">×</button>` : ''}</span>${tools}<textarea id="${fieldId}" data-target="${target}" data-id="${id}" data-key="${key}" aria-label="${esc(label)}" rows="${rows}" class="${rich ? 'markdown-editor' : 'small'}" spellcheck="false">${esc(value)}</textarea></label>`;
+  return `<label class="field" for="${fieldId}"><span class="field-label"><span>${label}</span>${remove ? `<button type="button" aria-label="Remove ${esc(label)}" data-action="remove-field" data-target="${target}" data-id="${id}" data-key="${key}" class="field-remove">×</button>` : ''}</span>${tools}<textarea id="${fieldId}" data-target="${target}" data-id="${id}" data-key="${key}" aria-label="${esc(label)}" rows="${rows}" class="${rich ? 'markdown-editor' : 'small'}" spellcheck="false" ${rich ? `style="height:${editorResizer.heightFor(fieldId)}px"` : ''}>${esc(value)}</textarea>${rich ? `<div class="editor-height-handle" data-editor-height role="separator" tabindex="0" aria-label="Resize Markdown editor" aria-orientation="horizontal" aria-controls="${fieldId}" aria-valuemin="${MIN_EDITOR_HEIGHT}" aria-valuemax="${MAX_EDITOR_HEIGHT}" aria-valuenow="${editorResizer.heightFor(fieldId)}" title="Drag to resize · Double-click to reset"><span aria-hidden="true">Drag to resize · Double-click to reset</span></div>` : ''}</label>`;
 }
 function renderHeader() {
   return `<details class="edit-module" data-module="header" ${openModules.has('header') ? 'open' : ''}><summary class="module-summary"><span class="module-name">Profile & photo</span><span class="count">Header</span></summary><div class="module-content"><div class="photo-editor"><div class="photo-thumb">${doc.header.photo ? `<img src="${doc.header.photo}" alt="Current profile photo">` : '3 : 4 Photo'}</div><div class="photo-buttons"><label class="button" for="photo-file">${doc.header.photo ? 'Replace photo' : 'Add photo'}<input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp" class="sr-only"></label>${action(doc.header.photoHidden ? 'Restore photo frame' : 'Remove photo frame', 'toggle-photo')}${doc.header.photo ? action('Remove photo', 'delete-photo') : ''}<p>JPG / PNG / WebP · Included in backups</p></div></div>${doc.header.fields.map((f) => field({ label: f.kind === 'name' ? 'Name / headline' : f.kind === 'contact' ? 'Contact details' : 'Role / additional details', value: f.text, target: 'header', id: f.id, key: 'text', rows: f.kind === 'contact' ? 2 : 1 })).join('')}<div class="add-blocks">${action('＋ Headline', 'add-header', { kind: 'name' })}${action('＋ Details', 'add-header', { kind: 'text' })}${action('＋ Contact', 'add-header', { kind: 'contact' })}</div></div></details>`;
