@@ -1,3 +1,4 @@
+import { toggleInlineFormat } from './inline-format.js';
 import { createEditorResizer, MIN_EDITOR_HEIGHT, MAX_EDITOR_HEIGHT } from './editor-resize.js';
 import DOMPurify from 'dompurify';
 import html2canvas from 'html2canvas';
@@ -133,9 +134,9 @@ function field({ label, value, target, id, key, rows = 1, remove = true, rich = 
   const fieldId = `field-${target}-${id}-${key}`;
   const tools = rich
     ? `<div class="format-bar" aria-label="${esc(label)} formatting tools">${[
-        ['B', 'bold', 'Bold'],
+        ['B', 'bold', 'Bold · ⌘B / Ctrl+B'],
         ['I', 'italic', 'Italic'],
-        ['U', 'underline', 'Underline'],
+        ['U', 'underline', 'Underline · ⌘U / Ctrl+U'],
         ['Highlight', 'highlight', 'Highlight'],
         ['Link', 'link', 'Hyperlink'],
         ['• List', 'bullet', 'Bullet list'],
@@ -281,12 +282,10 @@ function handleAction(button) {
   if (['delete-section', 'delete-block', 'remove-field', 'delete-photo'].includes(a))
     toast('Removed. Use Undo to restore.');
 }
-function applyFormat(button) {
-  const area = $(button.dataset.for),
-    start = area.selectionStart,
+function applyFormat(area, format) {
+  const start = area.selectionStart,
     end = area.selectionEnd,
-    selected = area.value.slice(start, end),
-    format = button.dataset.format;
+    selected = area.value.slice(start, end);
   const wraps = {
     bold: ['**', '**', 'Highlighted text'],
     italic: ['*', '*', 'Italic'],
@@ -295,6 +294,16 @@ function applyFormat(button) {
     link: ['[', '](https://example.com)', 'Link text'],
     math: ['$', '$', 'F_1=\\frac{2PR}{P+R}'],
   };
+  if (format === 'bold' || format === 'underline') {
+    const edit = toggleInlineFormat(area.value, start, end, wraps[format][0], wraps[format][2]);
+    const scrollTop = area.scrollTop;
+    area.setRangeText(edit.replacement, edit.from, edit.to, 'preserve');
+    area.setSelectionRange(edit.selectionStart, edit.selectionEnd);
+    area.focus({ preventScroll: true });
+    area.scrollTop = scrollTop;
+    area.dispatchEvent(new Event('input', { bubbles: true }));
+    return;
+  }
   let replacement;
   if (format === 'bullet' || format === 'number') {
     replacement = (selected || 'List item')
@@ -317,7 +326,7 @@ document.addEventListener('click', (event) => {
     $(button.dataset.close).close();
     return;
   }
-  if (button.dataset.format) applyFormat(button);
+  if (button.dataset.format) applyFormat($(button.dataset.for), button.dataset.format);
   else handleAction(button);
 });
 document.addEventListener('input', (event) => {
@@ -460,6 +469,19 @@ window.addEventListener('beforeunload', (event) => {
 });
 document.addEventListener('keydown', (event) => {
   if (!(event.ctrlKey || event.metaKey)) return;
+  const inlineFormat = { b: 'bold', u: 'underline' }[event.key.toLowerCase()];
+  if (
+    inlineFormat &&
+    !event.altKey &&
+    !event.shiftKey &&
+    !event.isComposing &&
+    event.target.matches('textarea[data-target]')
+  ) {
+    event.preventDefault();
+    if (!event.repeat) applyFormat(event.target, inlineFormat);
+    return;
+  }
+
   if (event.key.toLowerCase() === 's') {
     event.preventDefault();
     persist();
